@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>小米爱听 · 小爱音箱播放中心</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📻</text></svg>" />
+<link rel="stylesheet" href="/static/aiting/style.css" />
+</head>
+<body>
+<div class="app">
+
+  <!-- 顶栏 -->
+  <header class="topbar">
+    <div class="brand">
+      <span class="dot">📻</span>
+      <span>小米爱听<br /><small>XiaoMi-AiTing</small></span>
+    </div>
+    <div class="spacer"></div>
+    <div class="pill" id="nowPill" title="当前播放">
+      <span>🎵</span><span class="nm" id="nowName">未在播放</span>
+    </div>
+    <select class="dev" id="devSel" title="选择音箱"></select>
+    <button class="icon-btn" id="themeBtn" title="切换主题">🌙</button>
+  </header>
+
+  <div class="body">
+    <!-- 侧边导航 -->
+    <nav class="side" id="sideNav">
+      <button class="nav-item on" data-page="dash"><span class="ico">🎛️</span>播放控制台</button>
+      <button class="nav-item" data-page="radio"><span class="ico">📻</span>网络收音机</button>
+      <button class="nav-item" data-page="netmusic"><span class="ico">🔍</span>网络搜歌</button>
+      <button class="nav-item" data-page="music"><span class="ico">🎵</span>本地音乐</button>
+      <button class="nav-item" data-page="fav"><span class="ico">⭐</span>我的收藏</button>
+      <div class="nav-sep"></div>
+      <button class="nav-item" data-page="devices"><span class="ico">🔊</span>设备管理</button>
+      <button class="nav-item" data-page="system"><span class="ico">⚙️</span>系统与设置</button>
+      <div class="nav-sep"></div>
+      <button class="nav-item" id="classicBtn"><span class="ico">🗂️</span>原版界面</button>
+    </nav>
+
+    <!-- 主内容 -->
+    <main class="main" id="main">
+
+      <!-- 播放控制台 -->
+      <section class="page on" id="page-dash">
+        <h2 class="title">播放控制台</h2>
+        <p class="sub">一句话让音箱出声：选电台或选歌，点播放即可。</p>
+        <div class="grid c4" style="margin-bottom:16px">
+          <div class="stat"><div class="k">音箱设备</div><div class="v" id="sDev">-</div></div>
+          <div class="stat"><div class="k">本地歌曲</div><div class="v" id="sSong">-</div></div>
+          <div class="stat"><div class="k">内置电台</div><div class="v" id="sRadio">-</div></div>
+          <div class="stat"><div class="k">运行时长</div><div class="v" id="sUp">-</div></div>
+        </div>
+        <div class="grid c2">
+          <div class="card">
+            <h3 style="margin:0 0 12px;font-size:16px">🔊 音箱控制</h3>
+            <div class="toolbar">
+              <button class="btn primary" data-cmd="play">▶ 播放</button>
+              <button class="btn" data-cmd="stop">⏹ 停止</button>
+              <button class="btn" data-cmd="prev">⏮ 上一首</button>
+              <button class="btn" data-cmd="next">⏭ 下一首</button>
+            </div>
+            <label class="f"><span>音量 <b id="volTxt">--</b></span>
+              <div class="toolbar" style="margin-bottom:0">
+                <button class="btn sm" id="volDown" title="音量 -1">− 1</button>
+                <input type="range" id="volRange" min="0" max="100" value="30" step="1" style="flex:1" />
+                <button class="btn sm" id="volUp" title="音量 +1">+ 1</button>
+              </div></label>
+            <label class="f"><span>🔊 响度均衡（拉平各电台音量）</span>
+              <select id="normalizeSel">
+                <option value="1" selected>开启（推荐）</option>
+                <option value="0">关闭</option>
+              </select></label>
+            <div id="normalizeTip" style="margin:-4px 0 12px;font-size:12.5px;color:var(--text-2)">
+              各电台来自不同 CDN，音源自身响度最大差 <b>6~7 dB</b>（听感接近一倍），
+              所以切台时会「忽大忽小」。开启后所有电台听感音量一致。
+            </div>
+            <label class="f"><span>播放模式</span>
+              <select id="playType">
+                <option value="0">单曲循环</option><option value="1">全部循环</option>
+                <option value="2">随机播放</option><option value="3">单曲播放</option>
+                <option value="4">顺序播放</option>
+              </select></label>
+            <label class="f"><span>🌙 睡眠模式（音量渐弱到关闭）</span>
+              <div class="toolbar" style="margin-bottom:0">
+                <select class="dev" id="sleepMin">
+                  <option value="15">15 分钟</option>
+                  <option value="30">30 分钟</option>
+                  <option value="45" selected>45 分钟</option>
+                  <option value="60">60 分钟</option>
+                  <option value="90">90 分钟</option>
+                  <option value="120">120 分钟</option>
+                </select>
+                <button class="btn sm primary" id="sleepStart">开始渐弱</button>
+                <button class="btn sm" id="sleepCancel">取消</button>
+              </div>
+              <div id="sleepTip" style="margin-top:8px;font-size:12.5px;color:var(--text-2)">
+                默认 <b>45 分钟静音</b>：开启后音量从当前音量慢慢减小，45 分钟到点自动静音并停止播放。</div>
+            </label>
+          </div>
+          <div class="card">
+            <h3 style="margin:0 0 12px;font-size:16px">⭐ 最近播放</h3>
+            <div class="list" id="recentList"><div class="loading">加载中…</div></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 网络收音机 -->
+      <section class="page" id="page-radio">
+        <h2 class="title">网络收音机</h2>
+        <p class="sub">收录 <b id="rTotal">-</b> 个中文电台，覆盖央广、全国省市台与海外华语电台。</p>
+
+        <div class="card" style="padding:14px">
+          <div class="toolbar" style="margin-bottom:10px">
+            <input type="search" id="rSearch" placeholder="搜索电台名称…" />
+            <button class="btn sm" id="rFavOnly">⭐ 仅看收藏</button>
+            <select class="dev" id="rSort">
+              <option value="hot">按热度</option>
+              <option value="name">按名称</option>
+              <option value="play">按播放次数</option>
+            </select>
+            <div class="spacer" style="flex:1"></div>
+            <button class="btn sm" id="rAddBtn">＋ 自定义电台</button>
+            <button class="btn sm" id="rOnlineBtn">☁ 在线电台库</button>
+          </div>
+          <div id="rBoards" class="chips"></div>
+          <div id="rRegions" class="chips"></div>
+          <div id="rCats" class="chips"></div>
+        </div>
+
+        <div class="card">
+          <div class="toolbar" style="margin-bottom:6px">
+            <b id="rCount" style="font-size:14px">-</b>
+            <div class="spacer" style="flex:1"></div>
+            <button class="btn sm" id="rCheckAll">🩺 批量检测连通性</button>
+            <button class="btn sm" id="rPlayAll">▶ 播放整个列表</button>
+          </div>
+          <div class="list" id="radioList"><div class="loading">加载中…</div></div>
+          <div style="text-align:center;margin-top:14px">
+            <button class="btn sm" id="rMore">加载更多</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- 网络搜歌 -->
+      <section class="page" id="page-netmusic">
+        <h2 class="title">网络搜歌</h2>
+        <p class="sub">全网搜歌，一键下载到 NAS 音乐库「<b>网络歌曲</b>」文件夹，自动加入本地歌单。</p>
+        <div class="card" style="padding:14px">
+          <div class="toolbar">
+            <input type="search" id="nmSearch" placeholder="输入歌名 / 歌手，例如：周杰伦 稻香" />
+            <button class="btn sm primary" id="nmDoSearch">🔍 搜索</button>
+          </div>
+          <div class="sub" style="margin-top:8px">
+            音源：网易云音乐公开库。VIP / 无版权歌曲可能下载失败，换个版本或翻唱即可。
+          </div>
+        </div>
+        <div class="card">
+          <div class="toolbar" style="margin-bottom:6px">
+            <b id="nmCount" style="font-size:14px">-</b>
+          </div>
+          <div class="list" id="nmList"><div class="empty"><div class="big">🎧</div>输入关键词开始搜歌</div></div>
+        </div>
+        <div class="card">
+          <h3 style="margin:0 0 10px;font-size:15px">📁 已下载到「网络歌曲」（<span id="nmLocalCount">0</span> 首）</h3>
+          <div class="list" id="nmLocalList"><div class="loading">加载中…</div></div>
+        </div>
+      </section>
+
+      <!-- 本地音乐 -->
+      <section class="page" id="page-music">
+        <h2 class="title">本地音乐</h2>
+        <p class="sub">播放 NAS 上收藏的音乐文件，歌单按文件夹自动生成。</p>
+        <div class="card" style="padding:14px">
+          <div class="toolbar">
+            <input type="search" id="mSearch" placeholder="搜索歌曲…" />
+            <button class="btn sm" id="mRefresh">🔄 重新扫描音乐库</button>
+          </div>
+          <div id="mPlaylists" class="chips"></div>
+        </div>
+        <div class="card">
+          <div class="toolbar" style="margin-bottom:6px">
+            <b id="mCount" style="font-size:14px">-</b>
+            <div class="spacer" style="flex:1"></div>
+            <button class="btn sm" id="mPlayAll">▶ 播放整个歌单</button>
+          </div>
+          <div class="list" id="musicList"><div class="loading">加载中…</div></div>
+          <div style="text-align:center;margin-top:14px">
+            <button class="btn sm" id="mMore">加载更多</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- 收藏 -->
+      <section class="page" id="page-fav">
+        <h2 class="title">我的收藏</h2>
+        <p class="sub">收藏的电台与自定义电台都在这里。</p>
+        <div class="card">
+          <div class="list" id="favList"><div class="loading">加载中…</div></div>
+        </div>
+      </section>
+
+      <!-- 设备 -->
+      <section class="page" id="page-devices">
+        <h2 class="title">设备管理</h2>
+        <p class="sub">当前小米账号下已绑定的音箱设备。</p>
+        <div class="grid c2" id="devList"></div>
+      </section>
+
+      <!-- 系统 -->
+      <section class="page" id="page-system">
+        <h2 class="title">系统与设置</h2>
+        <p class="sub">运行状态、小米账号配置与日志。</p>
+        <div class="grid c2">
+          <div class="card">
+            <h3 style="margin:0 0 12px;font-size:16px">ℹ️ 运行信息</h3>
+            <div id="sysInfo"><div class="loading">加载中…</div></div>
+          </div>
+          <div class="card">
+            <h3 style="margin:0 0 12px;font-size:16px">🔑 小米账号</h3>
+            <label class="f"><span>账号</span><input type="text" id="cfgAccount" /></label>
+            <label class="f"><span>密码（留空表示不修改）</span>
+              <input type="password" id="cfgPassword" placeholder="••••••" /></label>
+            <label class="f"><span>服务地址 hostname（音箱访问本机的地址）</span>
+              <input type="text" id="cfgHostname" /></label>
+            <div class="toolbar">
+              <button class="btn primary" id="cfgSave">保存并重新登录</button>
+              <button class="btn" id="cfgReload">重新读取</button>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <h3 style="margin:0 0 12px;font-size:16px">📜 运行日志</h3>
+          <div class="toolbar">
+            <button class="btn sm" id="logLoad">刷新日志</button>
+            <span class="tag" id="logHint">最近 200 行</span>
+          </div>
+          <div class="logbox" id="logBox">点击「刷新日志」加载…</div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- 移动端底部导航 -->
+  <nav class="mobile-tabs" id="mTabs">
+    <button class="nav-item on" data-page="dash"><span class="ico">🎛️</span>控制台</button>
+    <button class="nav-item" data-page="radio"><span class="ico">📻</span>收音机</button>
+    <button class="nav-item" data-page="netmusic"><span class="ico">🔍</span>搜歌</button>
+    <button class="nav-item" data-page="music"><span class="ico">🎵</span>音乐</button>
+    <button class="nav-item" data-page="fav"><span class="ico">⭐</span>收藏</button>
+    <button class="nav-item" data-page="devices"><span class="ico">🔊</span>设备</button>
+    <button class="nav-item" data-page="system"><span class="ico">⚙️</span>设置</button>
+  </nav>
+
+  <!-- 播放条 -->
+  <footer class="player">
+    <div class="info">
+      <div class="n" id="pName">未在播放</div>
+      <div class="s" id="pList">选择电台或歌曲开始播放</div>
+    </div>
+    <div class="ctrl">
+      <button class="pbtn" id="pPrev" title="上一首">⏮</button>
+      <button class="pbtn main" id="pToggle" title="播放/停止">▶</button>
+      <button class="pbtn" id="pNext" title="下一首">⏭</button>
+    </div>
+    <div class="prog">
+      <span class="tm" id="pCur">00:00</span>
+      <div class="bar" id="pBar"><i id="pFill"></i></div>
+      <span class="tm" id="pDur">00:00</span>
+    </div>
+    <div class="vol">
+      <button class="pbtn" id="pSleep" title="睡眠模式（渐弱定时关闭）" style="width:34px;height:34px;font-size:14px">🌙</button>
+      <button class="pbtn vstep" id="pVolDown" title="音量 -1">−</button>
+      <span>🔉</span>
+      <input type="range" id="pVol" min="0" max="100" value="30" step="1" />
+      <button class="pbtn vstep" id="pVolUp" title="音量 +1">+</button>
+      <b class="vnum" id="volNow">--</b>
+    </div>
+  </footer>
+</div>
+
+<!-- 弹窗 -->
+<div class="mask" id="mask"><div class="modal" id="modal"></div></div>
+<div class="toast-wrap" id="toasts"></div>
+
+<script src="/static/aiting/app.js"></script>
+</body>
+</html>
