@@ -378,7 +378,17 @@
   function renderRadio() {
     const box = $("#radioList");
     if (!S.radio.items.length) {
-      box.innerHTML = '<div class="empty"><div class="big">📻</div>没有找到电台</div>';
+      const filtered = S.radio.keyword || S.radio.board || S.radio.region || S.radio.category || S.radio.fav;
+      box.innerHTML = `<div class="empty"><div class="big">📻</div>没有找到电台</div>` +
+        (filtered ? `<div style="text-align:center;margin-top:14px"><button class="btn sm primary" id="rClear">✕ 清除搜索 / 筛选条件</button></div>` : "");
+      const cb = $("#rClear");
+      if (cb) cb.onclick = () => {
+        S.radio.keyword = ""; S.radio.board = null; S.radio.region = null;
+        S.radio.category = null; S.radio.fav = false; S.radio.page = 1;
+        const si = $("#rSearch"); if (si) si.value = "";
+        const fo = $("#rFavOnly"); if (fo) fo.classList.remove("primary");
+        renderBoards(); loadRadio();
+      };
       return;
     }
     box.innerHTML = S.radio.items.map((s, i) => {

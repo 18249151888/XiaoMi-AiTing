@@ -6,6 +6,6 @@
   - 增强的播放后台（设备、历史、系统状态）
   - 首次使用配置引导
 """
-__version__ = "1.1.0"
+__version__ = "1.1.1"
 __app_name__ = "小米爱听"
 __app_name_en__ = "XiaoMi-AiTing"
